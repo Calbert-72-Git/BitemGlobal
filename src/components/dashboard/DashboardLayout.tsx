@@ -1,13 +1,37 @@
+import { useState } from "react";
 import { Outlet } from "react-router-dom";
+import { Menu } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import DashboardSidebar from "./DashboardSidebar";
 
 const DashboardLayout = () => {
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-background">
-      <DashboardSidebar />
-      <main className="ml-64 p-8">
-        <Outlet />
-      </main>
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-foreground/50 z-40 lg:hidden"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
+      <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+
+      <div className="lg:ml-64">
+        {/* Mobile header */}
+        <header className="lg:hidden sticky top-0 z-30 bg-background border-b border-border px-4 py-3 flex items-center gap-3">
+          <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
+            <Menu className="h-5 w-5" />
+          </Button>
+          <span className="font-heading font-bold text-foreground">Calbert 72</span>
+        </header>
+
+        <main className="p-4 md:p-8">
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 };
