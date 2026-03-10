@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { MessageCircle, Mail, Phone } from "lucide-react";
+import { MessageCircle, Mail, Phone, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const WHATSAPP_NUMBER = "240222176082";
@@ -28,7 +28,7 @@ const ContactSection = () => {
           className="flex flex-col sm:flex-row items-center justify-center gap-6"
         >
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=Hola%20Calbert%2072%2C%20me%20gustar%C3%ADa%20obtener%20m%C3%A1s%20informaci%C3%B3n.`}
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Calbert 72, me gustaría obtener más información.")}`}
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -51,10 +51,16 @@ const ContactSection = () => {
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
           transition={{ delay: 0.3 }}
-          className="mt-8 flex items-center justify-center gap-2 text-muted-foreground"
+          className="mt-8 flex flex-col items-center gap-3 text-muted-foreground"
         >
-          <Phone className="h-4 w-4" />
-          <span className="text-sm">+240 222 176 082</span>
+          <div className="flex items-center gap-2">
+            <Phone className="h-4 w-4" />
+            <span className="text-sm">+240 222 176 082</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <MapPin className="h-4 w-4" />
+            <span className="text-sm">Bata-Ngolo, Guinea Ecuatorial</span>
+          </div>
         </motion.div>
       </div>
     </section>

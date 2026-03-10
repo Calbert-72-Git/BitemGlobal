@@ -1,28 +1,24 @@
 import { motion } from "framer-motion";
-import { Dumbbell, Stethoscope, Scissors } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import gymImg from "@/assets/service-gym.jpg";
+import clinicImg from "@/assets/service-clinic.jpg";
+import hairdresserImg from "@/assets/service-hairdresser.jpg";
 
 const services = [
   {
-    icon: Dumbbell,
+    image: gymImg,
     title: "Gimnasia",
     description: "Entrenamiento personalizado, clases grupales y programas de fitness adaptados a tu nivel.",
-    color: "text-accent",
-    bg: "bg-accent/10",
   },
   {
-    icon: Stethoscope,
+    image: clinicImg,
     title: "Clínica Médica",
     description: "Consultas médicas, venta de medicamentos y atención profesional para tu salud.",
-    color: "text-primary",
-    bg: "bg-primary/10",
   },
   {
-    icon: Scissors,
+    image: hairdresserImg,
     title: "Peluquería",
     description: "Estilismo para hombres y mujeres. Cortes, tratamientos capilares y más.",
-    color: "text-destructive",
-    bg: "bg-destructive/10",
   },
 ];
 
@@ -51,12 +47,19 @@ const ServicesSection = () => {
               viewport={{ once: true }}
               transition={{ delay: i * 0.15 }}
             >
-              <Card className="shadow-card hover:shadow-elevated transition-shadow h-full border-0">
-                <CardContent className="p-8 text-center">
-                  <div className={`inline-flex items-center justify-center w-16 h-16 rounded-2xl ${s.bg} mb-6`}>
-                    <s.icon className={`h-8 w-8 ${s.color}`} />
-                  </div>
-                  <h3 className="font-heading text-xl font-bold text-foreground mb-3">{s.title}</h3>
+              <Card className="shadow-card hover:shadow-elevated transition-shadow h-full border-0 overflow-hidden group">
+                <div className="relative h-52 overflow-hidden">
+                  <img
+                    src={s.image}
+                    alt={s.title}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
+                  <h3 className="absolute bottom-4 left-6 font-heading text-xl font-bold text-primary-foreground">
+                    {s.title}
+                  </h3>
+                </div>
+                <CardContent className="p-6">
                   <p className="text-muted-foreground leading-relaxed">{s.description}</p>
                 </CardContent>
               </Card>
