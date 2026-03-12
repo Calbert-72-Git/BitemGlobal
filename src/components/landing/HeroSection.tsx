@@ -18,11 +18,14 @@ const HeroSection = () => {
           className="max-w-2xl"
         >
           <h1 className="font-heading text-4xl md:text-6xl font-extrabold text-primary-foreground leading-tight mb-6">
-            Calbert 72
+            Bitem Global
           </h1>
-          <p className="text-lg md:text-xl text-primary-foreground/80 mb-8 leading-relaxed">
-            Tu centro integral de <strong>Gimnasia</strong>, <strong>Clínica médica</strong> y <strong>Peluquería</strong>. 
+          <p className="text-lg md:text-xl text-primary-foreground/80 mb-3 leading-relaxed">
+            Tu centro integral de <strong>GeQ Sport</strong>, <strong>Clínica Bitem</strong> y <strong>Peluquería Bitem</strong>. 
             Crea, Educa y Transforma tu bienestar con nosotros.
+          </p>
+          <p className="text-base text-primary-foreground/60 mb-8">
+            📍 Bata-Ngolo, Guinea Ecuatorial
           </p>
           <div className="flex flex-wrap gap-4">
             <a href="#servicios">

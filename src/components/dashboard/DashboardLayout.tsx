@@ -9,7 +9,6 @@ const DashboardLayout = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Mobile overlay */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-foreground/50 z-40 lg:hidden"
@@ -20,12 +19,11 @@ const DashboardLayout = () => {
       <DashboardSidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
       <div className="lg:ml-64">
-        {/* Mobile header */}
         <header className="lg:hidden sticky top-0 z-30 bg-background border-b border-border px-4 py-3 flex items-center gap-3">
           <Button variant="ghost" size="icon" onClick={() => setSidebarOpen(true)}>
             <Menu className="h-5 w-5" />
           </Button>
-          <span className="font-heading font-bold text-foreground">Calbert 72</span>
+          <span className="font-heading font-bold text-foreground">Bitem Global</span>
         </header>
 
         <main className="p-4 md:p-8">

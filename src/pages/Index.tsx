@@ -13,9 +13,9 @@ const Index = () => {
         <div className="container mx-auto px-4 text-center max-w-2xl">
           <h2 className="font-heading text-3xl md:text-4xl font-bold text-foreground mb-6">Sobre Nosotros</h2>
           <p className="text-muted-foreground leading-relaxed">
-            Calbert 72 es un centro integral que reúne tres servicios esenciales: gimnasia para tu forma física, 
-            clínica médica con venta de medicamentos para tu salud, y peluquería profesional para hombres y mujeres. 
-            Nuestro compromiso es crear, educar y transformar la vida de nuestros clientes.
+            Bitem Global es un centro integral que reúne tres servicios esenciales: <strong>GeQ Sport</strong> para tu forma física, 
+            <strong> Clínica Bitem</strong> con venta de medicamentos para tu salud, y <strong>Peluquería Bitem</strong> profesional para hombres y mujeres. 
+            Nuestro compromiso es crear, educar y transformar la vida de nuestros clientes en Bata-Ngolo, Guinea Ecuatorial.
           </p>
         </div>
       </section>

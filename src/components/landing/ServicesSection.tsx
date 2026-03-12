@@ -3,21 +3,27 @@ import { Card, CardContent } from "@/components/ui/card";
 import gymImg from "@/assets/service-gym.jpg";
 import clinicImg from "@/assets/service-clinic.jpg";
 import hairdresserImg from "@/assets/service-hairdresser.jpg";
+import logoGym from "@/assets/logo-gym.png";
+import logoClinica from "@/assets/logo-clinica.png";
+import logoPeluqueria from "@/assets/logo-peluqueria.jpg";
 
 const services = [
   {
     image: gymImg,
-    title: "Gimnasia",
+    logo: logoGym,
+    title: "GeQ Sport",
     description: "Entrenamiento personalizado, clases grupales y programas de fitness adaptados a tu nivel.",
   },
   {
     image: clinicImg,
-    title: "Clínica Médica",
+    logo: logoClinica,
+    title: "Clínica Bitem",
     description: "Consultas médicas, venta de medicamentos y atención profesional para tu salud.",
   },
   {
     image: hairdresserImg,
-    title: "Peluquería",
+    logo: logoPeluqueria,
+    title: "Peluquería Bitem",
     description: "Estilismo para hombres y mujeres. Cortes, tratamientos capilares y más.",
   },
 ];
@@ -54,10 +60,11 @@ const ServicesSection = () => {
                     alt={s.title}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/60 to-transparent" />
-                  <h3 className="absolute bottom-4 left-6 font-heading text-xl font-bold text-primary-foreground">
-                    {s.title}
-                  </h3>
+                  <div className="absolute inset-0 bg-gradient-to-t from-foreground/70 to-transparent" />
+                  <div className="absolute bottom-4 left-6 flex items-center gap-3">
+                    <img src={s.logo} alt={`Logo ${s.title}`} className="h-10 w-10 rounded-lg bg-card/90 p-1 object-contain" />
+                    <h3 className="font-heading text-xl font-bold text-primary-foreground">{s.title}</h3>
+                  </div>
                 </div>
                 <CardContent className="p-6">
                   <p className="text-muted-foreground leading-relaxed">{s.description}</p>
