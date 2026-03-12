@@ -1,49 +1,86 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ShoppingCart, TrendingUp, TrendingDown, Package, Dumbbell, Stethoscope, Scissors } from "lucide-react";
+import { ShoppingCart, TrendingUp, TrendingDown, Package } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts";
+import { supabase } from "@/integrations/supabase/client";
+import logoGym from "@/assets/logo-gym.png";
+import logoClinica from "@/assets/logo-clinica.png";
+import logoPeluqueria from "@/assets/logo-peluqueria.jpg";
 
-const stats = [
-  { label: "Ventas del Mes", value: "1,250,000 XAF", icon: ShoppingCart, change: "+12%", color: "text-primary" },
-  { label: "Ingresos", value: "980,000 XAF", icon: TrendingUp, change: "+8%", color: "text-accent" },
-  { label: "Gastos", value: "420,000 XAF", icon: TrendingDown, change: "-3%", color: "text-destructive" },
-  { label: "Inventario", value: "342 items", icon: Package, change: "", color: "text-warning" },
-];
+const pieColors = ["hsl(145, 60%, 40%)", "hsl(217, 85%, 45%)", "hsl(38, 92%, 50%)"];
 
-const barData = [
-  { mes: "Ene", ventas: 800, gastos: 400 },
-  { mes: "Feb", ventas: 950, gastos: 380 },
-  { mes: "Mar", ventas: 1100, gastos: 420 },
-  { mes: "Abr", ventas: 1050, gastos: 450 },
-  { mes: "May", ventas: 1250, gastos: 420 },
-];
+const sectionLogos: Record<string, string> = {
+  gimnasia: logoGym,
+  clinica: logoClinica,
+  peluqueria: logoPeluqueria,
+};
 
-const pieData = [
-  { name: "Gimnasia", value: 40, color: "hsl(145, 60%, 40%)" },
-  { name: "Clínica", value: 35, color: "hsl(217, 85%, 45%)" },
-  { name: "Peluquería", value: 25, color: "hsl(0, 72%, 50%)" },
-];
+const sectionNames: Record<string, string> = {
+  gimnasia: "GeQ Sport",
+  clinica: "Clínica Bitem",
+  peluqueria: "Peluquería Bitem",
+};
 
 const DashboardHome = () => {
+  const [stats, setStats] = useState({ sales: 0, income: 0, expenses: 0, inventory: 0 });
+  const [sectionData, setSectionData] = useState<{ name: string; value: number }[]>([]);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      const [salesRes, incomeRes, expensesRes, inventoryRes] = await Promise.all([
+        supabase.from("sales").select("amount, section"),
+        supabase.from("income").select("amount, section"),
+        supabase.from("expenses").select("amount"),
+        supabase.from("inventory").select("id"),
+      ]);
+
+      const totalSales = (salesRes.data || []).reduce((s, r) => s + Number(r.amount), 0);
+      const totalIncome = (incomeRes.data || []).reduce((s, r) => s + Number(r.amount), 0);
+      const totalExpenses = (expensesRes.data || []).reduce((s, r) => s + Number(r.amount), 0);
+
+      setStats({
+        sales: totalSales,
+        income: totalIncome,
+        expenses: totalExpenses,
+        inventory: (inventoryRes.data || []).length,
+      });
+
+      // Section breakdown from sales
+      const bySection: Record<string, number> = {};
+      (salesRes.data || []).forEach((r: any) => {
+        bySection[r.section] = (bySection[r.section] || 0) + Number(r.amount);
+      });
+      setSectionData(
+        Object.entries(bySection).map(([name, value]) => ({ name: sectionNames[name] || name, value }))
+      );
+    };
+    fetchStats();
+  }, []);
+
+  const formatXAF = (n: number) => n.toLocaleString("es-GQ") + " XAF";
+
+  const statCards = [
+    { label: "Ventas Totales", value: formatXAF(stats.sales), icon: ShoppingCart, color: "text-primary" },
+    { label: "Ingresos", value: formatXAF(stats.income), icon: TrendingUp, color: "text-accent" },
+    { label: "Gastos", value: formatXAF(stats.expenses), icon: TrendingDown, color: "text-destructive" },
+    { label: "Inventario", value: `${stats.inventory} items`, icon: Package, color: "text-warning" },
+  ];
+
   return (
     <div className="space-y-8">
       <div>
         <h1 className="font-heading text-3xl font-bold text-foreground">Panel General</h1>
-        <p className="text-muted-foreground mt-1">Resumen de la actividad de Calbert 72</p>
+        <p className="text-muted-foreground mt-1">Resumen de la actividad de Bitem Global</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map(s => (
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+        {statCards.map(s => (
           <Card key={s.label} className="shadow-card border-0">
-            <CardContent className="p-6">
+            <CardContent className="p-5">
               <div className="flex items-center justify-between mb-3">
                 <s.icon className={`h-5 w-5 ${s.color}`} />
-                {s.change && (
-                  <span className={`text-xs font-semibold ${s.change.startsWith('+') ? 'text-accent' : 'text-destructive'}`}>
-                    {s.change}
-                  </span>
-                )}
               </div>
-              <p className="font-heading text-2xl font-bold text-foreground">{s.value}</p>
+              <p className="font-heading text-xl md:text-2xl font-bold text-foreground">{s.value}</p>
               <p className="text-sm text-muted-foreground mt-1">{s.label}</p>
             </CardContent>
           </Card>
@@ -53,63 +90,59 @@ const DashboardHome = () => {
       <div className="grid lg:grid-cols-3 gap-6">
         <Card className="lg:col-span-2 shadow-card border-0">
           <CardHeader>
-            <CardTitle className="font-heading">Ventas vs Gastos (miles XAF)</CardTitle>
+            <CardTitle className="font-heading">Ventas por Sección</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={barData}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(214, 20%, 88%)" />
-                <XAxis dataKey="mes" />
-                <YAxis />
-                <Tooltip />
-                <Bar dataKey="ventas" fill="hsl(217, 85%, 45%)" radius={[4,4,0,0]} />
-                <Bar dataKey="gastos" fill="hsl(0, 72%, 50%)" radius={[4,4,0,0]} />
-              </BarChart>
-            </ResponsiveContainer>
+            {sectionData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={300}>
+                <BarChart data={sectionData}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(214, 20%, 88%)" />
+                  <XAxis dataKey="name" />
+                  <YAxis />
+                  <Tooltip formatter={(v: number) => formatXAF(v)} />
+                  <Bar dataKey="value" fill="hsl(217, 85%, 45%)" radius={[4, 4, 0, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-muted-foreground text-center py-12">No hay datos de ventas aún. Registra tu primera venta.</p>
+            )}
           </CardContent>
         </Card>
 
         <Card className="shadow-card border-0">
           <CardHeader>
-            <CardTitle className="font-heading">Ingresos por Sección</CardTitle>
+            <CardTitle className="font-heading">Distribución</CardTitle>
           </CardHeader>
           <CardContent className="flex items-center justify-center">
-            <ResponsiveContainer width="100%" height={250}>
-              <PieChart>
-                <Pie data={pieData} cx="50%" cy="50%" innerRadius={50} outerRadius={90} dataKey="value" label={({ name, value }) => `${name} ${value}%`}>
-                  {pieData.map((entry) => (
-                    <Cell key={entry.name} fill={entry.color} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
+            {sectionData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={250}>
+                <PieChart>
+                  <Pie data={sectionData} cx="50%" cy="50%" innerRadius={50} outerRadius={90} dataKey="value" label={({ name }) => name}>
+                    {sectionData.map((_, i) => (
+                      <Cell key={i} fill={pieColors[i % pieColors.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(v: number) => formatXAF(v)} />
+                </PieChart>
+              </ResponsiveContainer>
+            ) : (
+              <p className="text-muted-foreground text-center py-12">Sin datos</p>
+            )}
           </CardContent>
         </Card>
       </div>
 
-      <div className="grid md:grid-cols-3 gap-6">
-        {[
-          { title: "Gimnasia", icon: Dumbbell, color: "text-accent", members: 87, revenue: "480,000 XAF" },
-          { title: "Clínica", icon: Stethoscope, color: "text-primary", members: 124, revenue: "350,000 XAF" },
-          { title: "Peluquería", icon: Scissors, color: "text-destructive", members: 65, revenue: "250,000 XAF" },
-        ].map(sec => (
-          <Card key={sec.title} className="shadow-card border-0">
-            <CardContent className="p-6">
+      <div className="grid sm:grid-cols-3 gap-4 md:gap-6">
+        {(["gimnasia", "clinica", "peluqueria"] as const).map((sec, i) => (
+          <Card key={sec} className="shadow-card border-0">
+            <CardContent className="p-5">
               <div className="flex items-center gap-3 mb-4">
-                <sec.icon className={`h-6 w-6 ${sec.color}`} />
-                <h3 className="font-heading font-bold text-lg text-foreground">{sec.title}</h3>
+                <img src={sectionLogos[sec]} alt={sectionNames[sec]} className="h-8 w-8 rounded object-contain" />
+                <h3 className="font-heading font-bold text-foreground">{sectionNames[sec]}</h3>
               </div>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Clientes</span>
-                  <span className="font-semibold text-foreground">{sec.members}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Ingresos</span>
-                  <span className="font-semibold text-foreground">{sec.revenue}</span>
-                </div>
-              </div>
+              <p className="text-sm text-muted-foreground">
+                Ventas: {formatXAF(sectionData.find(d => d.name === sectionNames[sec])?.value || 0)}
+              </p>
             </CardContent>
           </Card>
         ))}

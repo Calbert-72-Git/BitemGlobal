@@ -14,16 +14,280 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      accounting_entries: {
+        Row: {
+          account_name: string
+          created_at: string
+          credit: number
+          debit: number
+          description: string | null
+          entry_date: string
+          id: string
+          reference: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          user_id: string | null
+        }
+        Insert: {
+          account_name: string
+          created_at?: string
+          credit?: number
+          debit?: number
+          description?: string | null
+          entry_date?: string
+          id?: string
+          reference?: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          user_id?: string | null
+        }
+        Update: {
+          account_name?: string
+          created_at?: string
+          credit?: number
+          debit?: number
+          description?: string | null
+          entry_date?: string
+          id?: string
+          reference?: string | null
+          section?: Database["public"]["Enums"]["business_section"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      expenses: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          description: string
+          expense_date: string
+          id: string
+          section: Database["public"]["Enums"]["business_section"]
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description: string
+          expense_date?: string
+          id?: string
+          section: Database["public"]["Enums"]["business_section"]
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          description?: string
+          expense_date?: string
+          id?: string
+          section?: Database["public"]["Enums"]["business_section"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      income: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          income_date: string
+          section: Database["public"]["Enums"]["business_section"]
+          source: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description: string
+          id?: string
+          income_date?: string
+          section: Database["public"]["Enums"]["business_section"]
+          source?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          income_date?: string
+          section?: Database["public"]["Enums"]["business_section"]
+          source?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      inventory: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          min_stock: number
+          name: string
+          quantity: number
+          section: Database["public"]["Enums"]["business_section"]
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          min_stock?: number
+          name: string
+          quantity?: number
+          section: Database["public"]["Enums"]["business_section"]
+          unit_price?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          min_stock?: number
+          name?: string
+          quantity?: number
+          section?: Database["public"]["Enums"]["business_section"]
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string
+          id: string
+          section: Database["public"]["Enums"]["business_section"] | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id: string
+          section?: Database["public"]["Enums"]["business_section"] | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string
+          id?: string
+          section?: Database["public"]["Enums"]["business_section"] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      purchases: {
+        Row: {
+          amount: number
+          created_at: string
+          description: string
+          id: string
+          purchase_date: string
+          quantity: number
+          section: Database["public"]["Enums"]["business_section"]
+          supplier: string | null
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          description: string
+          id?: string
+          purchase_date?: string
+          quantity?: number
+          section: Database["public"]["Enums"]["business_section"]
+          supplier?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          description?: string
+          id?: string
+          purchase_date?: string
+          quantity?: number
+          section?: Database["public"]["Enums"]["business_section"]
+          supplier?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      sales: {
+        Row: {
+          amount: number
+          client_name: string | null
+          created_at: string
+          description: string
+          id: string
+          quantity: number
+          sale_date: string
+          section: Database["public"]["Enums"]["business_section"]
+          user_id: string | null
+        }
+        Insert: {
+          amount?: number
+          client_name?: string | null
+          created_at?: string
+          description: string
+          id?: string
+          quantity?: number
+          sale_date?: string
+          section: Database["public"]["Enums"]["business_section"]
+          user_id?: string | null
+        }
+        Update: {
+          amount?: number
+          client_name?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          quantity?: number
+          sale_date?: string
+          section?: Database["public"]["Enums"]["business_section"]
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "worker" | "viewer"
+      business_section: "gimnasia" | "clinica" | "peluqueria"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +414,9 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "worker", "viewer"],
+      business_section: ["gimnasia", "clinica", "peluqueria"],
+    },
   },
 } as const

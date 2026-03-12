@@ -3,10 +3,17 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { AuthProvider } from "@/hooks/useAuth";
+import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Login from "./pages/Login";
 import DashboardLayout from "./components/dashboard/DashboardLayout";
 import DashboardHome from "./pages/dashboard/DashboardHome";
+import SalesPage from "./pages/dashboard/SalesPage";
+import TransactionsPage from "./pages/dashboard/TransactionsPage";
+import InventoryPage from "./pages/dashboard/InventoryPage";
+import AccountingPage from "./pages/dashboard/AccountingPage";
+import UsersPage from "./pages/dashboard/UsersPage";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 
@@ -18,26 +25,28 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardHome />} />
-            <Route path="ventas" element={<PlaceholderPage />} />
-            <Route path="compras" element={<PlaceholderPage />} />
-            <Route path="ingresos" element={<PlaceholderPage />} />
-            <Route path="gastos" element={<PlaceholderPage />} />
-            <Route path="inventario" element={<PlaceholderPage />} />
-            <Route path="contabilidad" element={<PlaceholderPage />} />
-            <Route path="graficos" element={<PlaceholderPage />} />
-            <Route path="gimnasia" element={<PlaceholderPage />} />
-            <Route path="clinica" element={<PlaceholderPage />} />
-            <Route path="peluqueria" element={<PlaceholderPage />} />
-            <Route path="usuarios" element={<PlaceholderPage />} />
-            <Route path="configuracion" element={<PlaceholderPage />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
+              <Route index element={<DashboardHome />} />
+              <Route path="ventas" element={<SalesPage />} />
+              <Route path="compras" element={<TransactionsPage type="purchases" />} />
+              <Route path="ingresos" element={<TransactionsPage type="income" />} />
+              <Route path="gastos" element={<TransactionsPage type="expenses" />} />
+              <Route path="inventario" element={<InventoryPage />} />
+              <Route path="contabilidad" element={<AccountingPage />} />
+              <Route path="graficos" element={<PlaceholderPage />} />
+              <Route path="gimnasia" element={<PlaceholderPage />} />
+              <Route path="clinica" element={<PlaceholderPage />} />
+              <Route path="peluqueria" element={<PlaceholderPage />} />
+              <Route path="usuarios" element={<UsersPage />} />
+              <Route path="configuracion" element={<PlaceholderPage />} />
+            </Route>
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

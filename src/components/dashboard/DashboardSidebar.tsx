@@ -6,6 +6,7 @@ import {
 } from "lucide-react";
 import logo from "@/assets/logo-eni.png";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
 
 interface Props {
   open: boolean;
@@ -24,9 +25,9 @@ const navItems = [
 ];
 
 const sections = [
-  { label: "Gimnasia", icon: Dumbbell, path: "/dashboard/gimnasia" },
-  { label: "Clínica", icon: Stethoscope, path: "/dashboard/clinica" },
-  { label: "Peluquería", icon: Scissors, path: "/dashboard/peluqueria" },
+  { label: "GeQ Sport", icon: Dumbbell, path: "/dashboard/gimnasia" },
+  { label: "Clínica Bitem", icon: Stethoscope, path: "/dashboard/clinica" },
+  { label: "Peluquería Bitem", icon: Scissors, path: "/dashboard/peluqueria" },
 ];
 
 const adminItems = [
@@ -36,6 +37,7 @@ const adminItems = [
 
 const DashboardSidebar = ({ open, onClose }: Props) => {
   const location = useLocation();
+  const { signOut, profile } = useAuth();
 
   const NavItem = ({ item }: { item: typeof navItems[0] }) => {
     const active = location.pathname === item.path;
@@ -66,8 +68,11 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
     >
       <div className="p-4 flex items-center justify-between border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Calbert 72" className="h-9 w-auto" />
-          <span className="font-heading font-bold text-sidebar-foreground">Calbert 72</span>
+          <img src={logo} alt="Bitem Global" className="h-9 w-auto" />
+          <div>
+            <span className="font-heading font-bold text-sidebar-foreground block text-sm">Bitem Global</span>
+            {profile && <span className="text-xs text-sidebar-foreground/50">{profile.full_name}</span>}
+          </div>
         </div>
         <button onClick={onClose} className="lg:hidden text-sidebar-foreground/70 hover:text-sidebar-foreground">
           <X className="h-5 w-5" />
@@ -95,13 +100,13 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
       </nav>
 
       <div className="p-3 border-t border-sidebar-border">
-        <Link
-          to="/"
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors"
+        <button
+          onClick={signOut}
+          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors w-full"
         >
           <LogOut className="h-4 w-4" />
           Cerrar Sesión
-        </Link>
+        </button>
       </div>
     </aside>
   );
