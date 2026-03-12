@@ -37,7 +37,7 @@ const UsersPage = () => {
   };
 
   const removeRole = async (userId: string, role: string) => {
-    const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role);
+    const { error } = await supabase.from("user_roles").delete().eq("user_id", userId).eq("role", role as "admin" | "worker" | "viewer");
     if (error) { toast.error(error.message); return; }
     toast.success("Rol eliminado");
     fetchUsers();
