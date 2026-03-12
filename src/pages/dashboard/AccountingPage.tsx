@@ -23,7 +23,7 @@ const AccountingPage = () => {
 
   const fetchEntries = async () => {
     let q = supabase.from("accounting_entries").select("*").order("entry_date", { ascending: false });
-    if (filter !== "all") q = q.eq("section", filter);
+    if (filter !== "all") q = q.eq("section", filter as "gimnasia" | "clinica" | "peluqueria");
     const { data } = await q;
     setEntries(data || []);
   };
