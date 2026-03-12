@@ -21,7 +21,7 @@ const InventoryPage = () => {
 
   const fetchItems = async () => {
     let q = supabase.from("inventory").select("*").order("name");
-    if (filter !== "all") q = q.eq("section", filter);
+    if (filter !== "all") q = q.eq("section", filter as "gimnasia" | "clinica" | "peluqueria");
     const { data } = await q;
     setItems(data || []);
   };

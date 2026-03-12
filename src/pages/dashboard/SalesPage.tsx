@@ -22,7 +22,7 @@ const SalesPage = () => {
 
   const fetchSales = async () => {
     let q = supabase.from("sales").select("*").order("sale_date", { ascending: false });
-    if (filter !== "all") q = q.eq("section", filter);
+    if (filter !== "all") q = q.eq("section", filter as "gimnasia" | "clinica" | "peluqueria");
     const { data } = await q;
     setSales(data || []);
   };

@@ -39,7 +39,7 @@ const TransactionsPage = ({ type }: Props) => {
 
   const fetchData = async () => {
     let q = supabase.from(type).select("*").order(c.dateField, { ascending: false });
-    if (filter !== "all") q = q.eq("section", filter);
+    if (filter !== "all") q = q.eq("section", filter as "gimnasia" | "clinica" | "peluqueria");
     const { data: res } = await q;
     setData(res || []);
   };
