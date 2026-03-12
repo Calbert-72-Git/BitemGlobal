@@ -30,7 +30,7 @@ const UsersPage = () => {
   useEffect(() => { fetchUsers(); }, []);
 
   const assignRole = async (userId: string, role: string) => {
-    const { error } = await supabase.from("user_roles").upsert({ user_id: userId, role: role as "admin" | "worker" | "viewer" }, { onConflict: "user_id,role" });
+    const { error } = await supabase.from("user_roles").upsert({ user_id: userId, role: role as "admin" | "worker" | "viewer" } as any, { onConflict: "user_id,role" });
     if (error) { toast.error(error.message); return; }
     toast.success("Rol asignado");
     fetchUsers();

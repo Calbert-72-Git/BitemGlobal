@@ -49,13 +49,13 @@ const AccountingPage = () => {
     fetchEntries();
   };
 
-  // Compute grouped data for reports
-  const accountSummary = entries.reduce((acc: Record<string, { debit: number; credit: number }>, e) => {
+  type AccountBalance = { debit: number; credit: number };
+  const accountSummary: Record<string, AccountBalance> = entries.reduce((acc: Record<string, AccountBalance>, e) => {
     if (!acc[e.account_name]) acc[e.account_name] = { debit: 0, credit: 0 };
     acc[e.account_name].debit += Number(e.debit);
     acc[e.account_name].credit += Number(e.credit);
     return acc;
-  }, {});
+  }, {} as Record<string, AccountBalance>);
 
   const totalDebit = entries.reduce((s, e) => s + Number(e.debit), 0);
   const totalCredit = entries.reduce((s, e) => s + Number(e.credit), 0);
