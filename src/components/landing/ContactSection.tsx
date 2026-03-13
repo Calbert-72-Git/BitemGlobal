@@ -28,18 +28,18 @@ const ContactSection = () => {
           className="flex flex-col sm:flex-row items-center justify-center gap-6"
         >
           <a
-            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Calbert 72, me gustaría obtener más información.")}`}
+            href={`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent("Hola Bitem Global, me gustaría obtener más información.")}`}
             target="_blank"
             rel="noopener noreferrer"
           >
-            <Button size="lg" className="gap-3 bg-accent hover:bg-accent/90 text-accent-foreground font-heading font-semibold px-8">
+            <Button size="lg" className="gap-3 bg-accent hover:bg-accent/90 text-accent-foreground font-heading font-semibold px-8 rounded-full">
               <MessageCircle className="h-5 w-5" />
               WhatsApp
             </Button>
           </a>
 
           <a href={`mailto:${EMAIL}`}>
-            <Button size="lg" variant="outline" className="gap-3 font-heading font-semibold px-8">
+            <Button size="lg" variant="outline" className="gap-3 font-heading font-semibold px-8 rounded-full">
               <Mail className="h-5 w-5" />
               {EMAIL}
             </Button>
