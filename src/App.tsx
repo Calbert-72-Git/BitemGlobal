@@ -13,6 +13,7 @@ import SalesPage from "./pages/dashboard/SalesPage";
 import TransactionsPage from "./pages/dashboard/TransactionsPage";
 import InventoryPage from "./pages/dashboard/InventoryPage";
 import AccountingPage from "./pages/dashboard/AccountingPage";
+import ChartsPage from "./pages/dashboard/ChartsPage";
 import UsersPage from "./pages/dashboard/UsersPage";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage";
 import NotFound from "./pages/NotFound";
@@ -37,7 +38,7 @@ const App = () => (
               <Route path="gastos" element={<TransactionsPage type="expenses" />} />
               <Route path="inventario" element={<InventoryPage />} />
               <Route path="contabilidad" element={<AccountingPage />} />
-              <Route path="graficos" element={<PlaceholderPage />} />
+              <Route path="graficos" element={<ChartsPage />} />
               <Route path="gimnasia" element={<PlaceholderPage />} />
               <Route path="clinica" element={<PlaceholderPage />} />
               <Route path="peluqueria" element={<PlaceholderPage />} />
