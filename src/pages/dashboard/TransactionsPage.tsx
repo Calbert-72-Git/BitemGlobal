@@ -6,36 +6,33 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2 } from "lucide-react";
+import { Plus, Trash2, FileSpreadsheet, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { exportToExcel, exportToPDF } from "@/lib/exportUtils";
 
 const sectionLabels: Record<string, string> = { gimnasia: "GeQ Sport", clinica: "Clínica Bitem", peluqueria: "Peluquería Bitem" };
 
 type TransactionType = "purchases" | "income" | "expenses";
 
-const config: Record<TransactionType, {
-  title: string;
-  dateField: string;
-  extraField: { key: string; label: string };
-}> = {
+const config: Record<TransactionType, { title: string; dateField: string; extraField: { key: string; label: string } }> = {
   purchases: { title: "Compras", dateField: "purchase_date", extraField: { key: "supplier", label: "Proveedor" } },
   income: { title: "Ingresos", dateField: "income_date", extraField: { key: "source", label: "Fuente" } },
   expenses: { title: "Gastos", dateField: "expense_date", extraField: { key: "category", label: "Categoría" } },
 };
 
-interface Props {
-  type: TransactionType;
-}
+interface Props { type: TransactionType; }
 
 const TransactionsPage = ({ type }: Props) => {
-  const { user } = useAuth();
+  const { user, hasRole, profile } = useAuth();
   const c = config[type];
   const [data, setData] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("all");
-  const [form, setForm] = useState({ description: "", amount: "", section: "gimnasia", extra: "", date: new Date().toISOString().split("T")[0] });
+  const canWrite = hasRole("admin") || hasRole("worker");
+  const allowedSections: string[] = (profile as any)?.allowed_sections || [];
+  const [form, setForm] = useState({ description: "", amount: "", section: allowedSections[0] || "gimnasia", extra: "", date: new Date().toISOString().split("T")[0] });
 
   const fetchData = async () => {
     let q = supabase.from(type).select("*").order(c.dateField, { ascending: false });
@@ -48,20 +45,17 @@ const TransactionsPage = ({ type }: Props) => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const row: any = {
-      user_id: user?.id,
-      section: form.section,
-      description: form.description,
-      amount: parseFloat(form.amount),
-      [c.dateField]: form.date,
-      [c.extraField.key]: form.extra,
-    };
+    if (!hasRole("admin") && allowedSections.length > 0 && !allowedSections.includes(form.section)) {
+      toast.error("No tienes permiso para registrar en esta sección");
+      return;
+    }
+    const row: any = { user_id: user?.id, section: form.section, description: form.description, amount: parseFloat(form.amount), [c.dateField]: form.date, [c.extraField.key]: form.extra };
     if (type === "purchases") row.quantity = 1;
     const { error } = await supabase.from(type).insert(row);
     if (error) { toast.error(error.message); return; }
     toast.success(`${c.title.slice(0, -1)} registrado/a`);
     setOpen(false);
-    setForm({ description: "", amount: "", section: "gimnasia", extra: "", date: new Date().toISOString().split("T")[0] });
+    setForm({ description: "", amount: "", section: allowedSections[0] || "gimnasia", extra: "", date: new Date().toISOString().split("T")[0] });
     fetchData();
   };
 
@@ -72,11 +66,22 @@ const TransactionsPage = ({ type }: Props) => {
     fetchData();
   };
 
+  const exportColumns = [
+    { key: c.dateField, label: "Fecha" },
+    { key: "section_label", label: "Sección" },
+    { key: "description", label: "Descripción" },
+    { key: c.extraField.key, label: c.extraField.label },
+    { key: "amount_fmt", label: "Monto (XAF)" },
+  ];
+  const exportData = data.map(r => ({ ...r, section_label: sectionLabels[r.section] || r.section, amount_fmt: Number(r.amount).toLocaleString() }));
+
+  const availableSections = hasRole("admin") ? allSectionsList : allSectionsList.filter(s => allowedSections.includes(s.value));
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <h1 className="font-heading text-3xl font-bold text-foreground">{c.title}</h1>
-        <div className="flex gap-3">
+        <div className="flex gap-2 flex-wrap">
           <Select value={filter} onValueChange={setFilter}>
             <SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
             <SelectContent>
@@ -86,63 +91,46 @@ const TransactionsPage = ({ type }: Props) => {
               <SelectItem value="peluqueria">Peluquería Bitem</SelectItem>
             </SelectContent>
           </Select>
-          <Dialog open={open} onOpenChange={setOpen}>
-            <DialogTrigger asChild>
-              <Button className="gap-2"><Plus className="h-4 w-4" /> Nuevo</Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader><DialogTitle>Registrar {c.title}</DialogTitle></DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Sección</Label>
-                    <Select value={form.section} onValueChange={v => setForm({ ...form, section: v })}>
-                      <SelectTrigger><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="gimnasia">GeQ Sport</SelectItem>
-                        <SelectItem value="clinica">Clínica Bitem</SelectItem>
-                        <SelectItem value="peluqueria">Peluquería Bitem</SelectItem>
-                      </SelectContent>
-                    </Select>
+          <Button variant="outline" size="icon" onClick={() => exportToExcel(exportData, exportColumns, c.title.toLowerCase())} title="Excel"><FileSpreadsheet className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => exportToPDF(exportData, exportColumns, `${c.title} - Bitem Global`, c.title.toLowerCase())} title="PDF"><FileText className="h-4 w-4" /></Button>
+          {canWrite && (
+            <Dialog open={open} onOpenChange={setOpen}>
+              <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Nuevo</Button></DialogTrigger>
+              <DialogContent>
+                <DialogHeader><DialogTitle>Registrar {c.title}</DialogTitle></DialogHeader>
+                <form onSubmit={handleSubmit} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Sección</Label>
+                      <Select value={form.section} onValueChange={v => setForm({ ...form, section: v })}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {availableSections.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2"><Label>Fecha</Label><Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required /></div>
                   </div>
-                  <div className="space-y-2">
-                    <Label>Fecha</Label>
-                    <Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required />
+                  <div className="space-y-2"><Label>Descripción</Label><Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required /></div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2"><Label>Monto (XAF)</Label><Input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required /></div>
+                    <div className="space-y-2"><Label>{c.extraField.label}</Label><Input value={form.extra} onChange={e => setForm({ ...form, extra: e.target.value })} /></div>
                   </div>
-                </div>
-                <div className="space-y-2">
-                  <Label>Descripción</Label>
-                  <Input value={form.description} onChange={e => setForm({ ...form, description: e.target.value })} required />
-                </div>
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label>Monto (XAF)</Label>
-                    <Input type="number" step="0.01" value={form.amount} onChange={e => setForm({ ...form, amount: e.target.value })} required />
-                  </div>
-                  <div className="space-y-2">
-                    <Label>{c.extraField.label}</Label>
-                    <Input value={form.extra} onChange={e => setForm({ ...form, extra: e.target.value })} />
-                  </div>
-                </div>
-                <Button type="submit" className="w-full">Guardar</Button>
-              </form>
-            </DialogContent>
-          </Dialog>
+                  <Button type="submit" className="w-full">Guardar</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
         </div>
       </div>
-
       <Card className="shadow-card border-0">
         <CardContent className="p-0">
           <div className="overflow-x-auto">
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Fecha</TableHead>
-                  <TableHead>Sección</TableHead>
-                  <TableHead>Descripción</TableHead>
-                  <TableHead>{c.extraField.label}</TableHead>
-                  <TableHead className="text-right">Monto</TableHead>
-                  <TableHead></TableHead>
+                  <TableHead>Fecha</TableHead><TableHead>Sección</TableHead><TableHead>Descripción</TableHead>
+                  <TableHead>{c.extraField.label}</TableHead><TableHead className="text-right">Monto</TableHead><TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -156,9 +144,9 @@ const TransactionsPage = ({ type }: Props) => {
                     <TableCell>{r[c.extraField.key] || "-"}</TableCell>
                     <TableCell className="text-right font-semibold">{Number(r.amount).toLocaleString()} XAF</TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+                      {(hasRole("admin") || r.user_id === user?.id) && (
+                        <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))}
@@ -170,5 +158,11 @@ const TransactionsPage = ({ type }: Props) => {
     </div>
   );
 };
+
+const allSectionsList = [
+  { value: "gimnasia", label: "GeQ Sport" },
+  { value: "clinica", label: "Clínica Bitem" },
+  { value: "peluqueria", label: "Peluquería Bitem" },
+];
 
 export default TransactionsPage;

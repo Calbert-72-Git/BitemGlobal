@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, ShoppingCart, TrendingUp, TrendingDown,
   Package, BookOpen, Users, Settings, Dumbbell, Stethoscope,
-  Scissors, BarChart3, LogOut, X
+  Scissors, BarChart3, LogOut, X, Wallet
 } from "lucide-react";
 import logo from "@/assets/logo-eni.png";
 import { cn } from "@/lib/utils";
@@ -14,32 +14,35 @@ interface Props {
 }
 
 const navItems = [
-  { label: "Panel General", icon: LayoutDashboard, path: "/dashboard" },
-  { label: "Ventas", icon: ShoppingCart, path: "/dashboard/ventas" },
-  { label: "Compras", icon: Package, path: "/dashboard/compras" },
-  { label: "Ingresos", icon: TrendingUp, path: "/dashboard/ingresos" },
-  { label: "Gastos", icon: TrendingDown, path: "/dashboard/gastos" },
-  { label: "Inventario", icon: Package, path: "/dashboard/inventario" },
-  { label: "Contabilidad", icon: BookOpen, path: "/dashboard/contabilidad" },
-  { label: "Gráficos", icon: BarChart3, path: "/dashboard/graficos" },
+  { label: "Panel General", icon: LayoutDashboard, path: "/dashboard", page: "" },
+  { label: "Ventas", icon: ShoppingCart, path: "/dashboard/ventas", page: "ventas" },
+  { label: "Compras", icon: Package, path: "/dashboard/compras", page: "compras" },
+  { label: "Ingresos", icon: TrendingUp, path: "/dashboard/ingresos", page: "ingresos" },
+  { label: "Gastos", icon: TrendingDown, path: "/dashboard/gastos", page: "gastos" },
+  { label: "Inventario", icon: Package, path: "/dashboard/inventario", page: "inventario" },
+  { label: "Contabilidad", icon: BookOpen, path: "/dashboard/contabilidad", page: "contabilidad" },
+  { label: "Gráficos", icon: BarChart3, path: "/dashboard/graficos", page: "graficos" },
+  { label: "Nóminas", icon: Wallet, path: "/dashboard/nominas", page: "nominas" },
 ];
 
 const sections = [
-  { label: "GeQ Sport", icon: Dumbbell, path: "/dashboard/gimnasia" },
-  { label: "Clínica Bitem", icon: Stethoscope, path: "/dashboard/clinica" },
-  { label: "Peluquería Bitem", icon: Scissors, path: "/dashboard/peluqueria" },
+  { label: "GeQ Sport", icon: Dumbbell, path: "/dashboard/gimnasia", page: "" },
+  { label: "Clínica Bitem", icon: Stethoscope, path: "/dashboard/clinica", page: "" },
+  { label: "Peluquería Bitem", icon: Scissors, path: "/dashboard/peluqueria", page: "" },
 ];
 
 const adminItems = [
-  { label: "Usuarios", icon: Users, path: "/dashboard/usuarios" },
-  { label: "Configuración", icon: Settings, path: "/dashboard/configuracion" },
+  { label: "Usuarios", icon: Users, path: "/dashboard/usuarios", page: "usuarios" },
+  { label: "Configuración", icon: Settings, path: "/dashboard/configuracion", page: "" },
 ];
 
 const DashboardSidebar = ({ open, onClose }: Props) => {
   const location = useLocation();
-  const { signOut, profile } = useAuth();
+  const { signOut, profile, canAccessPage, hasRole } = useAuth();
 
   const NavItem = ({ item }: { item: typeof navItems[0] }) => {
+    // Hide items user can't access (except Panel General which is always visible)
+    if (item.page && !canAccessPage(item.page)) return null;
     const active = location.pathname === item.path;
     return (
       <Link
@@ -91,12 +94,14 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
           </div>
         </div>
 
-        <div>
-          <p className="px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/40 mb-2">Admin</p>
-          <div className="space-y-1">
-            {adminItems.map(item => <NavItem key={item.path} item={item} />)}
+        {hasRole("admin") && (
+          <div>
+            <p className="px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/40 mb-2">Admin</p>
+            <div className="space-y-1">
+              {adminItems.map(item => <NavItem key={item.path} item={item} />)}
+            </div>
           </div>
-        </div>
+        )}
       </nav>
 
       <div className="p-3 border-t border-sidebar-border">
