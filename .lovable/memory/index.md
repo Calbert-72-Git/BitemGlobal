@@ -19,15 +19,20 @@ Plataforma de gestión multi-negocio Bitem Global (antes Calbert 72)
 - Landing page: / (public)
 - Login/Signup: /login (with tabs)
 - Dashboard: /dashboard/* (protected, requires auth)
-- DB tables: profiles, user_roles, sales, purchases, income, expenses, inventory, accounting_entries
+- DB tables: profiles, user_roles, sales, purchases, income, expenses, inventory, accounting_entries, employees, payroll
 - Roles: admin, worker, viewer (stored in user_roles table)
 - All tables have business_section enum (gimnasia, clinica, peluqueria)
+- New users auto-get viewer role via trigger
+- profiles has allowed_sections[] and allowed_pages[] for access control
+- PageGuard component restricts page access based on allowed_pages
 
 ## Implemented
 - Auth with email/password (signup + login)
-- Sales CRUD with section filter
-- Purchases/Income/Expenses CRUD (TransactionsPage)
-- Inventory management with low stock alerts
+- Sales CRUD with section filter + Excel/PDF export
+- Purchases/Income/Expenses CRUD (TransactionsPage) + Excel/PDF export
+- Inventory management with low stock alerts + Excel/PDF export
 - Accounting: Libro Diario, Libro Mayor, Balance Comprobación, Cuenta de Resultados
-- User management (admin assigns roles)
-- Protected routes
+- User management: admin assigns roles, sections, page access; edit/delete users
+- Payroll: employees table with personal/bank data, monthly payroll generation
+- Protected routes + PageGuard for per-page access control
+- Charts with recharts
