@@ -15,8 +15,10 @@ import InventoryPage from "./pages/dashboard/InventoryPage";
 import AccountingPage from "./pages/dashboard/AccountingPage";
 import ChartsPage from "./pages/dashboard/ChartsPage";
 import UsersPage from "./pages/dashboard/UsersPage";
+import PayrollPage from "./pages/dashboard/PayrollPage";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage";
 import NotFound from "./pages/NotFound";
+import PageGuard from "./components/PageGuard";
 
 const queryClient = new QueryClient();
 
@@ -32,17 +34,18 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
               <Route index element={<DashboardHome />} />
-              <Route path="ventas" element={<SalesPage />} />
-              <Route path="compras" element={<TransactionsPage type="purchases" />} />
-              <Route path="ingresos" element={<TransactionsPage type="income" />} />
-              <Route path="gastos" element={<TransactionsPage type="expenses" />} />
-              <Route path="inventario" element={<InventoryPage />} />
-              <Route path="contabilidad" element={<AccountingPage />} />
-              <Route path="graficos" element={<ChartsPage />} />
+              <Route path="ventas" element={<PageGuard page="ventas"><SalesPage /></PageGuard>} />
+              <Route path="compras" element={<PageGuard page="compras"><TransactionsPage type="purchases" /></PageGuard>} />
+              <Route path="ingresos" element={<PageGuard page="ingresos"><TransactionsPage type="income" /></PageGuard>} />
+              <Route path="gastos" element={<PageGuard page="gastos"><TransactionsPage type="expenses" /></PageGuard>} />
+              <Route path="inventario" element={<PageGuard page="inventario"><InventoryPage /></PageGuard>} />
+              <Route path="contabilidad" element={<PageGuard page="contabilidad"><AccountingPage /></PageGuard>} />
+              <Route path="graficos" element={<PageGuard page="graficos"><ChartsPage /></PageGuard>} />
+              <Route path="nominas" element={<PageGuard page="nominas"><PayrollPage /></PageGuard>} />
               <Route path="gimnasia" element={<PlaceholderPage />} />
               <Route path="clinica" element={<PlaceholderPage />} />
               <Route path="peluqueria" element={<PlaceholderPage />} />
-              <Route path="usuarios" element={<UsersPage />} />
+              <Route path="usuarios" element={<PageGuard page="usuarios"><UsersPage /></PageGuard>} />
               <Route path="configuracion" element={<PlaceholderPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />

@@ -53,6 +53,60 @@ export type Database = {
         }
         Relationships: []
       }
+      employees: {
+        Row: {
+          active: boolean
+          address: string | null
+          bank_account: string | null
+          bank_name: string | null
+          base_salary: number
+          created_at: string
+          dni: string | null
+          full_name: string
+          id: string
+          phone: string | null
+          position: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          start_date: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          active?: boolean
+          address?: string | null
+          bank_account?: string | null
+          bank_name?: string | null
+          base_salary?: number
+          created_at?: string
+          dni?: string | null
+          full_name: string
+          id?: string
+          phone?: string | null
+          position?: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          start_date?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          active?: boolean
+          address?: string | null
+          bank_account?: string | null
+          bank_name?: string | null
+          base_salary?: number
+          created_at?: string
+          dni?: string | null
+          full_name?: string
+          id?: string
+          phone?: string | null
+          position?: string | null
+          section?: Database["public"]["Enums"]["business_section"]
+          start_date?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       expenses: {
         Row: {
           amount: number
@@ -155,8 +209,66 @@ export type Database = {
         }
         Relationships: []
       }
+      payroll: {
+        Row: {
+          base_salary: number
+          bonuses: number
+          created_at: string
+          deductions: number
+          employee_id: string
+          id: string
+          month: number
+          net_salary: number
+          notes: string | null
+          paid: boolean
+          paid_date: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          year: number
+        }
+        Insert: {
+          base_salary?: number
+          bonuses?: number
+          created_at?: string
+          deductions?: number
+          employee_id: string
+          id?: string
+          month: number
+          net_salary?: number
+          notes?: string | null
+          paid?: boolean
+          paid_date?: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          year: number
+        }
+        Update: {
+          base_salary?: number
+          bonuses?: number
+          created_at?: string
+          deductions?: number
+          employee_id?: string
+          id?: string
+          month?: number
+          net_salary?: number
+          notes?: string | null
+          paid?: boolean
+          paid_date?: string | null
+          section?: Database["public"]["Enums"]["business_section"]
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payroll_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
+          allowed_pages: string[] | null
+          allowed_sections: string[] | null
           created_at: string
           email: string | null
           full_name: string
@@ -165,6 +277,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          allowed_pages?: string[] | null
+          allowed_sections?: string[] | null
           created_at?: string
           email?: string | null
           full_name?: string
@@ -173,6 +287,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          allowed_pages?: string[] | null
+          allowed_sections?: string[] | null
           created_at?: string
           email?: string | null
           full_name?: string
