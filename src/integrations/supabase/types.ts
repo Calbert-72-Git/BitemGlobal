@@ -62,6 +62,7 @@ export type Database = {
           base_salary: number
           created_at: string
           dni: string | null
+          email: string | null
           full_name: string
           id: string
           phone: string | null
@@ -79,6 +80,7 @@ export type Database = {
           base_salary?: number
           created_at?: string
           dni?: string | null
+          email?: string | null
           full_name: string
           id?: string
           phone?: string | null
@@ -96,6 +98,7 @@ export type Database = {
           base_salary?: number
           created_at?: string
           dni?: string | null
+          email?: string | null
           full_name?: string
           id?: string
           phone?: string | null
@@ -270,9 +273,11 @@ export type Database = {
           allowed_pages: string[] | null
           allowed_sections: string[] | null
           created_at: string
+          dni: string | null
           email: string | null
           full_name: string
           id: string
+          phone: string | null
           section: Database["public"]["Enums"]["business_section"] | null
           updated_at: string
         }
@@ -280,9 +285,11 @@ export type Database = {
           allowed_pages?: string[] | null
           allowed_sections?: string[] | null
           created_at?: string
+          dni?: string | null
           email?: string | null
           full_name?: string
           id: string
+          phone?: string | null
           section?: Database["public"]["Enums"]["business_section"] | null
           updated_at?: string
         }
@@ -290,9 +297,11 @@ export type Database = {
           allowed_pages?: string[] | null
           allowed_sections?: string[] | null
           created_at?: string
+          dni?: string | null
           email?: string | null
           full_name?: string
           id?: string
+          phone?: string | null
           section?: Database["public"]["Enums"]["business_section"] | null
           updated_at?: string
         }
@@ -402,7 +411,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "worker" | "viewer"
+      app_role: "admin" | "worker" | "viewer" | "super_admin"
       business_section: "gimnasia" | "clinica" | "peluqueria"
     }
     CompositeTypes: {
@@ -531,7 +540,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "worker", "viewer"],
+      app_role: ["admin", "worker", "viewer", "super_admin"],
       business_section: ["gimnasia", "clinica", "peluqueria"],
     },
   },
