@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { exportToExcel, exportToPDF } from "@/lib/exportUtils";
+import { logAction } from "@/lib/auditLog";
 
 const sectionLabels: Record<string, string> = { gimnasia: "GeQ Sport", clinica: "Clínica Bitem", peluqueria: "Peluquería Bitem" };
 
@@ -25,34 +26,44 @@ const config: Record<TransactionType, { title: string; dateField: string; extraF
 interface Props { type: TransactionType; }
 
 const TransactionsPage = ({ type }: Props) => {
-  const { user, hasRole, profile } = useAuth();
+  const { user, isAdmin, hasRole, profile } = useAuth();
   const c = config[type];
   const [data, setData] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("all");
-  const canWrite = hasRole("admin") || hasRole("worker");
-  const allowedSections: string[] = (profile as any)?.allowed_sections || [];
+  const canWrite = isAdmin || hasRole("worker");
+  const allowedSections: string[] = profile?.allowed_sections || [];
   const [form, setForm] = useState({ description: "", amount: "", section: allowedSections[0] || "gimnasia", extra: "", date: new Date().toISOString().split("T")[0] });
 
   const fetchData = async () => {
     let q = supabase.from(type).select("*").order(c.dateField, { ascending: false });
-    if (filter !== "all") q = q.eq("section", filter as "gimnasia" | "clinica" | "peluqueria");
+    if (filter !== "all") q = q.eq("section", filter as any);
     const { data: res } = await q;
     setData(res || []);
   };
 
-  useEffect(() => { fetchData(); }, [filter, type]);
+  const fetchProfiles = async () => {
+    if (!isAdmin) return;
+    const { data } = await supabase.from("profiles").select("id, full_name");
+    const map: Record<string, string> = {};
+    (data || []).forEach((p: any) => { map[p.id] = p.full_name; });
+    setProfiles(map);
+  };
+
+  useEffect(() => { fetchData(); fetchProfiles(); }, [filter, type]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!hasRole("admin") && allowedSections.length > 0 && !allowedSections.includes(form.section)) {
+    if (!isAdmin && allowedSections.length > 0 && !allowedSections.includes(form.section)) {
       toast.error("No tienes permiso para registrar en esta sección");
       return;
     }
     const row: any = { user_id: user?.id, section: form.section, description: form.description, amount: parseFloat(form.amount), [c.dateField]: form.date, [c.extraField.key]: form.extra };
     if (type === "purchases") row.quantity = 1;
-    const { error } = await supabase.from(type).insert(row);
+    const { data: inserted, error } = await supabase.from(type).insert(row).select("id").single();
     if (error) { toast.error(error.message); return; }
+    await logAction(`Registrar ${c.title.toLowerCase()}`, c.title.toLowerCase(), inserted?.id, { description: form.description, amount: form.amount });
     toast.success(`${c.title.slice(0, -1)} registrado/a`);
     setOpen(false);
     setForm({ description: "", amount: "", section: allowedSections[0] || "gimnasia", extra: "", date: new Date().toISOString().split("T")[0] });
@@ -62,6 +73,7 @@ const TransactionsPage = ({ type }: Props) => {
   const handleDelete = async (id: string) => {
     const { error } = await supabase.from(type).delete().eq("id", id);
     if (error) { toast.error(error.message); return; }
+    await logAction(`Eliminar ${c.title.toLowerCase()}`, c.title.toLowerCase(), id);
     toast.success("Eliminado");
     fetchData();
   };
@@ -72,10 +84,11 @@ const TransactionsPage = ({ type }: Props) => {
     { key: "description", label: "Descripción" },
     { key: c.extraField.key, label: c.extraField.label },
     { key: "amount_fmt", label: "Monto (XAF)" },
+    { key: "registered_by", label: "Registrado por" },
   ];
-  const exportData = data.map(r => ({ ...r, section_label: sectionLabels[r.section] || r.section, amount_fmt: Number(r.amount).toLocaleString() }));
+  const exportData = data.map(r => ({ ...r, section_label: sectionLabels[r.section] || r.section, amount_fmt: Number(r.amount).toLocaleString(), registered_by: profiles[r.user_id] || "-" }));
 
-  const availableSections = hasRole("admin") ? allSectionsList : allSectionsList.filter(s => allowedSections.includes(s.value));
+  const availableSections = isAdmin ? allSectionsList : allSectionsList.filter(s => allowedSections.includes(s.value));
 
   return (
     <div className="space-y-6">
@@ -130,12 +143,13 @@ const TransactionsPage = ({ type }: Props) => {
               <TableHeader>
                 <TableRow>
                   <TableHead>Fecha</TableHead><TableHead>Sección</TableHead><TableHead>Descripción</TableHead>
-                  <TableHead>{c.extraField.label}</TableHead><TableHead className="text-right">Monto</TableHead><TableHead></TableHead>
+                  <TableHead>{c.extraField.label}</TableHead><TableHead className="text-right">Monto</TableHead>
+                  <TableHead>Registrado por</TableHead><TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {data.length === 0 ? (
-                  <TableRow><TableCell colSpan={6} className="text-center py-8 text-muted-foreground">Sin registros</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={7} className="text-center py-8 text-muted-foreground">Sin registros</TableCell></TableRow>
                 ) : data.map(r => (
                   <TableRow key={r.id}>
                     <TableCell>{r[c.dateField]}</TableCell>
@@ -143,8 +157,9 @@ const TransactionsPage = ({ type }: Props) => {
                     <TableCell>{r.description}</TableCell>
                     <TableCell>{r[c.extraField.key] || "-"}</TableCell>
                     <TableCell className="text-right font-semibold">{Number(r.amount).toLocaleString()} XAF</TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{profiles[r.user_id] || (r.user_id === user?.id ? profile?.full_name : "-")}</TableCell>
                     <TableCell>
-                      {(hasRole("admin") || r.user_id === user?.id) && (
+                      {isAdmin && (
                         <Button variant="ghost" size="icon" onClick={() => handleDelete(r.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       )}
                     </TableCell>

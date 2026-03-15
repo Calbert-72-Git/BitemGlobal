@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { exportToExcel, exportToPDF } from "@/lib/exportUtils";
+import { logAction } from "@/lib/auditLog";
 
 const sectionLabels: Record<string, string> = { gimnasia: "GeQ Sport", clinica: "Clínica Bitem", peluqueria: "Peluquería Bitem" };
 
@@ -25,16 +26,16 @@ const columns = [
 ];
 
 const InventoryPage = () => {
-  const { hasRole } = useAuth();
+  const { isAdmin, hasRole } = useAuth();
   const [items, setItems] = useState<any[]>([]);
   const [open, setOpen] = useState(false);
   const [filter, setFilter] = useState("all");
-  const canWrite = hasRole("admin") || hasRole("worker");
+  const canWrite = isAdmin || hasRole("worker");
   const [form, setForm] = useState({ name: "", description: "", quantity: "0", unit_price: "0", min_stock: "5", section: "clinica" });
 
   const fetchItems = async () => {
     let q = supabase.from("inventory").select("*").order("name");
-    if (filter !== "all") q = q.eq("section", filter as "gimnasia" | "clinica" | "peluqueria");
+    if (filter !== "all") q = q.eq("section", filter as any);
     const { data } = await q;
     setItems(data || []);
   };
@@ -43,11 +44,12 @@ const InventoryPage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { error } = await supabase.from("inventory").insert({
+    const { data, error } = await supabase.from("inventory").insert({
       section: form.section as any, name: form.name, description: form.description,
       quantity: parseInt(form.quantity), unit_price: parseFloat(form.unit_price), min_stock: parseInt(form.min_stock),
-    });
+    }).select("id").single();
     if (error) { toast.error(error.message); return; }
+    await logAction("Agregar inventario", "inventario", data?.id, { name: form.name });
     toast.success("Artículo agregado");
     setOpen(false);
     setForm({ name: "", description: "", quantity: "0", unit_price: "0", min_stock: "5", section: "clinica" });
@@ -56,6 +58,7 @@ const InventoryPage = () => {
 
   const handleDelete = async (id: string) => {
     await supabase.from("inventory").delete().eq("id", id);
+    await logAction("Eliminar inventario", "inventario", id);
     toast.success("Eliminado");
     fetchItems();
   };
@@ -142,7 +145,7 @@ const InventoryPage = () => {
                       {item.quantity <= item.min_stock ? <Badge variant="destructive">Bajo</Badge> : <Badge className="bg-accent text-accent-foreground">OK</Badge>}
                     </TableCell>
                     <TableCell>
-                      {hasRole("admin") && (
+                      {isAdmin && (
                         <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
                       )}
                     </TableCell>

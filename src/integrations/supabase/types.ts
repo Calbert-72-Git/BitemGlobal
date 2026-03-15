@@ -53,6 +53,42 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          module: string
+          record_id: string | null
+          user_id: string | null
+          user_name: string
+          user_role: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          module: string
+          record_id?: string | null
+          user_id?: string | null
+          user_name?: string
+          user_role?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          module?: string
+          record_id?: string | null
+          user_id?: string | null
+          user_name?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           active: boolean
@@ -62,6 +98,7 @@ export type Database = {
           base_salary: number
           created_at: string
           dni: string | null
+          email: string | null
           full_name: string
           id: string
           phone: string | null
@@ -79,6 +116,7 @@ export type Database = {
           base_salary?: number
           created_at?: string
           dni?: string | null
+          email?: string | null
           full_name: string
           id?: string
           phone?: string | null
@@ -96,6 +134,7 @@ export type Database = {
           base_salary?: number
           created_at?: string
           dni?: string | null
+          email?: string | null
           full_name?: string
           id?: string
           phone?: string | null
@@ -209,6 +248,60 @@ export type Database = {
         }
         Relationships: []
       }
+      invoices: {
+        Row: {
+          client_address: string | null
+          client_name: string | null
+          client_phone: string | null
+          created_at: string
+          created_by: string | null
+          created_by_name: string | null
+          id: string
+          invoice_number: string
+          items: Json
+          notes: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          subtotal: number
+          tax_amount: number
+          tax_rate: number
+          total: number
+        }
+        Insert: {
+          client_address?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          invoice_number: string
+          items?: Json
+          notes?: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+        }
+        Update: {
+          client_address?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          invoice_number?: string
+          items?: Json
+          notes?: string | null
+          section?: Database["public"]["Enums"]["business_section"]
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+        }
+        Relationships: []
+      }
       payroll: {
         Row: {
           base_salary: number
@@ -270,9 +363,11 @@ export type Database = {
           allowed_pages: string[] | null
           allowed_sections: string[] | null
           created_at: string
+          dni: string | null
           email: string | null
           full_name: string
           id: string
+          phone: string | null
           section: Database["public"]["Enums"]["business_section"] | null
           updated_at: string
         }
@@ -280,9 +375,11 @@ export type Database = {
           allowed_pages?: string[] | null
           allowed_sections?: string[] | null
           created_at?: string
+          dni?: string | null
           email?: string | null
           full_name?: string
           id: string
+          phone?: string | null
           section?: Database["public"]["Enums"]["business_section"] | null
           updated_at?: string
         }
@@ -290,9 +387,11 @@ export type Database = {
           allowed_pages?: string[] | null
           allowed_sections?: string[] | null
           created_at?: string
+          dni?: string | null
           email?: string | null
           full_name?: string
           id?: string
+          phone?: string | null
           section?: Database["public"]["Enums"]["business_section"] | null
           updated_at?: string
         }
@@ -400,9 +499,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
-      app_role: "admin" | "worker" | "viewer"
+      app_role: "admin" | "worker" | "viewer" | "super_admin"
       business_section: "gimnasia" | "clinica" | "peluqueria"
     }
     CompositeTypes: {
@@ -531,7 +631,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "worker", "viewer"],
+      app_role: ["admin", "worker", "viewer", "super_admin"],
       business_section: ["gimnasia", "clinica", "peluqueria"],
     },
   },
