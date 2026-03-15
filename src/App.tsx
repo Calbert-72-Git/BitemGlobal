@@ -16,6 +16,7 @@ import AccountingPage from "./pages/dashboard/AccountingPage";
 import ChartsPage from "./pages/dashboard/ChartsPage";
 import UsersPage from "./pages/dashboard/UsersPage";
 import PayrollPage from "./pages/dashboard/PayrollPage";
+import AuditPage from "./pages/dashboard/AuditPage";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import PageGuard from "./components/PageGuard";
@@ -42,6 +43,7 @@ const App = () => (
               <Route path="contabilidad" element={<PageGuard page="contabilidad"><AccountingPage /></PageGuard>} />
               <Route path="graficos" element={<PageGuard page="graficos"><ChartsPage /></PageGuard>} />
               <Route path="nominas" element={<PageGuard page="nominas"><PayrollPage /></PageGuard>} />
+              <Route path="auditoria" element={<PageGuard page="auditoria"><AuditPage /></PageGuard>} />
               <Route path="gimnasia" element={<PlaceholderPage />} />
               <Route path="clinica" element={<PlaceholderPage />} />
               <Route path="peluqueria" element={<PlaceholderPage />} />

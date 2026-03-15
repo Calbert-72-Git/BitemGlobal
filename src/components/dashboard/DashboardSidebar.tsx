@@ -2,7 +2,7 @@ import { Link, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, ShoppingCart, TrendingUp, TrendingDown,
   Package, BookOpen, Users, Settings, Dumbbell, Stethoscope,
-  Scissors, BarChart3, LogOut, X, Wallet
+  Scissors, BarChart3, LogOut, X, Wallet, ClipboardList
 } from "lucide-react";
 import logo from "@/assets/logo-eni.png";
 import { cn } from "@/lib/utils";
@@ -33,15 +33,17 @@ const sections = [
 
 const adminItems = [
   { label: "Usuarios", icon: Users, path: "/dashboard/usuarios", page: "usuarios" },
+  { label: "Auditoría", icon: ClipboardList, path: "/dashboard/auditoria", page: "auditoria" },
   { label: "Configuración", icon: Settings, path: "/dashboard/configuracion", page: "" },
 ];
 
 const DashboardSidebar = ({ open, onClose }: Props) => {
   const location = useLocation();
-  const { signOut, profile, canAccessPage, hasRole } = useAuth();
+  const { signOut, profile, canAccessPage, isAdmin, isSuperAdmin, roles } = useAuth();
+
+  const roleLabel = isSuperAdmin ? "Super Admin" : roles.includes("admin") ? "Admin" : roles.includes("worker") ? "Trabajador" : "Lector";
 
   const NavItem = ({ item }: { item: typeof navItems[0] }) => {
-    // Hide items user can't access (except Panel General which is always visible)
     if (item.page && !canAccessPage(item.page)) return null;
     const active = location.pathname === item.path;
     return (
@@ -74,7 +76,12 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
           <img src={logo} alt="Bitem Global" className="h-9 w-auto" />
           <div>
             <span className="font-heading font-bold text-sidebar-foreground block text-sm">Bitem Global</span>
-            {profile && <span className="text-xs text-sidebar-foreground/50">{profile.full_name}</span>}
+            {profile && (
+              <div>
+                <span className="text-xs text-sidebar-foreground/50">{profile.full_name}</span>
+                <span className="text-[10px] text-sidebar-foreground/40 block">{roleLabel}</span>
+              </div>
+            )}
           </div>
         </div>
         <button onClick={onClose} className="lg:hidden text-sidebar-foreground/70 hover:text-sidebar-foreground">
@@ -94,7 +101,7 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
           </div>
         </div>
 
-        {hasRole("admin") && (
+        {isAdmin && (
           <div>
             <p className="px-3 text-xs font-semibold uppercase tracking-wider text-sidebar-foreground/40 mb-2">Admin</p>
             <div className="space-y-1">
