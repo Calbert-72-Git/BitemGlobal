@@ -53,6 +53,42 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_log: {
+        Row: {
+          action: string
+          created_at: string
+          details: Json | null
+          id: string
+          module: string
+          record_id: string | null
+          user_id: string | null
+          user_name: string
+          user_role: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          module: string
+          record_id?: string | null
+          user_id?: string | null
+          user_name?: string
+          user_role?: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          module?: string
+          record_id?: string | null
+          user_id?: string | null
+          user_name?: string
+          user_role?: string
+        }
+        Relationships: []
+      }
       employees: {
         Row: {
           active: boolean
@@ -209,6 +245,60 @@ export type Database = {
           section?: Database["public"]["Enums"]["business_section"]
           unit_price?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      invoices: {
+        Row: {
+          client_address: string | null
+          client_name: string | null
+          client_phone: string | null
+          created_at: string
+          created_by: string | null
+          created_by_name: string | null
+          id: string
+          invoice_number: string
+          items: Json
+          notes: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          subtotal: number
+          tax_amount: number
+          tax_rate: number
+          total: number
+        }
+        Insert: {
+          client_address?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          invoice_number: string
+          items?: Json
+          notes?: string | null
+          section: Database["public"]["Enums"]["business_section"]
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
+        }
+        Update: {
+          client_address?: string | null
+          client_name?: string | null
+          client_phone?: string | null
+          created_at?: string
+          created_by?: string | null
+          created_by_name?: string | null
+          id?: string
+          invoice_number?: string
+          items?: Json
+          notes?: string | null
+          section?: Database["public"]["Enums"]["business_section"]
+          subtotal?: number
+          tax_amount?: number
+          tax_rate?: number
+          total?: number
         }
         Relationships: []
       }
@@ -409,6 +499,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "worker" | "viewer" | "super_admin"
