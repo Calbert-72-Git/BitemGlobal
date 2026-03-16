@@ -223,6 +223,7 @@ export type Database = {
           section: Database["public"]["Enums"]["business_section"]
           unit_price: number
           updated_at: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string
@@ -234,6 +235,7 @@ export type Database = {
           section: Database["public"]["Enums"]["business_section"]
           unit_price?: number
           updated_at?: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string
@@ -245,21 +247,27 @@ export type Database = {
           section?: Database["public"]["Enums"]["business_section"]
           unit_price?: number
           updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
       invoices: {
         Row: {
+          amount_paid: number
+          amount_pending: number
           client_address: string | null
           client_name: string | null
           client_phone: string | null
           created_at: string
           created_by: string | null
           created_by_name: string | null
+          discount_amount: number
+          discount_percent: number
           id: string
           invoice_number: string
           items: Json
           notes: string | null
+          payment_method: string
           section: Database["public"]["Enums"]["business_section"]
           subtotal: number
           tax_amount: number
@@ -267,16 +275,21 @@ export type Database = {
           total: number
         }
         Insert: {
+          amount_paid?: number
+          amount_pending?: number
           client_address?: string | null
           client_name?: string | null
           client_phone?: string | null
           created_at?: string
           created_by?: string | null
           created_by_name?: string | null
+          discount_amount?: number
+          discount_percent?: number
           id?: string
           invoice_number: string
           items?: Json
           notes?: string | null
+          payment_method?: string
           section: Database["public"]["Enums"]["business_section"]
           subtotal?: number
           tax_amount?: number
@@ -284,16 +297,21 @@ export type Database = {
           total?: number
         }
         Update: {
+          amount_paid?: number
+          amount_pending?: number
           client_address?: string | null
           client_name?: string | null
           client_phone?: string | null
           created_at?: string
           created_by?: string | null
           created_by_name?: string | null
+          discount_amount?: number
+          discount_percent?: number
           id?: string
           invoice_number?: string
           items?: Json
           notes?: string | null
+          payment_method?: string
           section?: Database["public"]["Enums"]["business_section"]
           subtotal?: number
           tax_amount?: number
