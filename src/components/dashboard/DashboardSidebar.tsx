@@ -1,8 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
 import {
-  LayoutDashboard, ShoppingCart, TrendingUp, TrendingDown,
-  Package, BookOpen, Users, Settings, Dumbbell, Stethoscope,
-  Scissors, BarChart3, LogOut, X, Wallet, ClipboardList
+  LayoutDashboard, ShoppingBag, ArrowDownCircle, ArrowUpCircle,
+  Warehouse, BookOpenCheck, Users, Settings, Dumbbell, Stethoscope,
+  Scissors, BarChart4, LogOut, X, Banknote, ClipboardCheck, TrendingDown
 } from "lucide-react";
 import logo from "@/assets/logo-eni.png";
 import { cn } from "@/lib/utils";
@@ -15,14 +15,14 @@ interface Props {
 
 const navItems = [
   { label: "Panel General", icon: LayoutDashboard, path: "/dashboard", page: "" },
-  { label: "Ventas", icon: ShoppingCart, path: "/dashboard/ventas", page: "ventas" },
-  { label: "Compras", icon: Package, path: "/dashboard/compras", page: "compras" },
-  { label: "Ingresos", icon: TrendingUp, path: "/dashboard/ingresos", page: "ingresos" },
+  { label: "Ventas", icon: ShoppingBag, path: "/dashboard/ventas", page: "ventas" },
+  { label: "Compras", icon: ArrowDownCircle, path: "/dashboard/compras", page: "compras" },
+  { label: "Ingresos", icon: ArrowUpCircle, path: "/dashboard/ingresos", page: "ingresos" },
   { label: "Gastos", icon: TrendingDown, path: "/dashboard/gastos", page: "gastos" },
-  { label: "Inventario", icon: Package, path: "/dashboard/inventario", page: "inventario" },
-  { label: "Contabilidad", icon: BookOpen, path: "/dashboard/contabilidad", page: "contabilidad" },
-  { label: "Gráficos", icon: BarChart3, path: "/dashboard/graficos", page: "graficos" },
-  { label: "Nóminas", icon: Wallet, path: "/dashboard/nominas", page: "nominas" },
+  { label: "Inventario", icon: Warehouse, path: "/dashboard/inventario", page: "inventario" },
+  { label: "Contabilidad", icon: BookOpenCheck, path: "/dashboard/contabilidad", page: "contabilidad" },
+  { label: "Gráficos", icon: BarChart4, path: "/dashboard/graficos", page: "graficos" },
+  { label: "Nóminas", icon: Banknote, path: "/dashboard/nominas", page: "nominas" },
 ];
 
 const sections = [
@@ -33,7 +33,7 @@ const sections = [
 
 const adminItems = [
   { label: "Usuarios", icon: Users, path: "/dashboard/usuarios", page: "usuarios" },
-  { label: "Auditoría", icon: ClipboardList, path: "/dashboard/auditoria", page: "auditoria" },
+  { label: "Auditoría", icon: ClipboardCheck, path: "/dashboard/auditoria", page: "auditoria" },
   { label: "Configuración", icon: Settings, path: "/dashboard/configuracion", page: "" },
 ];
 
@@ -51,13 +51,13 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
         to={item.path}
         onClick={onClose}
         className={cn(
-          "flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors",
+          "flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200",
           active
-            ? "bg-sidebar-primary text-sidebar-primary-foreground"
+            ? "bg-sidebar-primary text-sidebar-primary-foreground shadow-lg shadow-sidebar-primary/30"
             : "text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent"
         )}
       >
-        <item.icon className="h-4 w-4 shrink-0" />
+        <item.icon className={cn("h-5 w-5 shrink-0", active && "drop-shadow-sm")} />
         {item.label}
       </Link>
     );
@@ -73,12 +73,12 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
     >
       <div className="p-4 flex items-center justify-between border-b border-sidebar-border">
         <div className="flex items-center gap-3">
-          <img src={logo} alt="Bitem Global" className="h-9 w-auto" />
+          <img src={logo} alt="Bitem Global" className="h-10 w-auto" />
           <div>
             <span className="font-heading font-bold text-sidebar-foreground block text-sm">Bitem Global</span>
             {profile && (
               <div>
-                <span className="text-xs text-sidebar-foreground/50">{profile.full_name}</span>
+                <span className="text-xs text-sidebar-foreground/60">{profile.full_name}</span>
                 <span className="text-[10px] text-sidebar-foreground/40 block">{roleLabel}</span>
               </div>
             )}
@@ -114,9 +114,9 @@ const DashboardSidebar = ({ open, onClose }: Props) => {
       <div className="p-3 border-t border-sidebar-border">
         <button
           onClick={signOut}
-          className="flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-colors w-full"
+          className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-sidebar-foreground/70 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all w-full"
         >
-          <LogOut className="h-4 w-4" />
+          <LogOut className="h-5 w-5" />
           Cerrar Sesión
         </button>
       </div>

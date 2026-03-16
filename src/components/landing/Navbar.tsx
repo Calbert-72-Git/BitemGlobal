@@ -16,23 +16,18 @@ const Navbar = () => {
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
         scrolled
-          ? "bg-card/95 backdrop-blur-xl shadow-card border-b border-border"
+          ? "bg-card/80 backdrop-blur-2xl shadow-sm border-b border-border/50"
           : "bg-transparent"
       }`}
     >
-      <div className="container mx-auto flex items-center justify-between h-20 px-4">
+      <div className="container mx-auto flex items-center justify-between h-16 px-4">
         <Link to="/" className="flex items-center gap-3">
-          <img src={logo} alt="Bitem Global" className="h-12 w-auto" />
-          <div className="flex flex-col">
-            <span className={`font-heading font-extrabold text-xl leading-tight ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>
-              Bitem Global
-            </span>
-            <span className={`text-[10px] font-medium tracking-widest uppercase ${scrolled ? "text-muted-foreground" : "text-primary-foreground/60"}`}>
-              Bienestar Integral
-            </span>
-          </div>
+          <img src={logo} alt="Bitem Global" className="h-10 w-auto" />
+          <span className={`font-heading font-extrabold text-lg tracking-tight ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>
+            Bitem Global
+          </span>
         </Link>
 
         <div className="hidden md:flex items-center gap-8">
@@ -40,16 +35,16 @@ const Navbar = () => {
             <a
               key={label}
               href={`#${label.toLowerCase()}`}
-              className={`text-sm font-semibold tracking-wide transition-colors ${
-                scrolled ? "text-muted-foreground hover:text-primary" : "text-primary-foreground/80 hover:text-primary-foreground"
+              className={`text-sm font-medium tracking-wide transition-colors ${
+                scrolled ? "text-muted-foreground hover:text-foreground" : "text-primary-foreground/70 hover:text-primary-foreground"
               }`}
             >
               {label}
             </a>
           ))}
           <Link to="/login">
-            <Button size="sm" className="font-heading font-semibold px-6 rounded-full shadow-elevated">
-              Iniciar Sesión
+            <Button size="sm" className="font-heading font-semibold px-6 rounded-full">
+              Acceder
             </Button>
           </Link>
         </div>
@@ -63,19 +58,14 @@ const Navbar = () => {
       </div>
 
       {open && (
-        <div className="md:hidden bg-card/95 backdrop-blur-xl border-b border-border px-6 pb-6 pt-2 space-y-4 animate-in slide-in-from-top-2">
+        <div className="md:hidden bg-card/95 backdrop-blur-xl border-b border-border px-6 pb-6 pt-2 space-y-4">
           {["Servicios", "Nosotros", "Contacto"].map((label) => (
-            <a
-              key={label}
-              href={`#${label.toLowerCase()}`}
-              className="block text-sm font-semibold text-foreground hover:text-primary"
-              onClick={() => setOpen(false)}
-            >
+            <a key={label} href={`#${label.toLowerCase()}`} className="block text-sm font-medium text-foreground" onClick={() => setOpen(false)}>
               {label}
             </a>
           ))}
           <Link to="/login" onClick={() => setOpen(false)}>
-            <Button size="sm" className="w-full font-heading font-semibold rounded-full">Iniciar Sesión</Button>
+            <Button size="sm" className="w-full font-heading font-semibold rounded-full">Acceder</Button>
           </Link>
         </div>
       )}
