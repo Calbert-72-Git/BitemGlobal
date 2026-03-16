@@ -6,7 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, FileSpreadsheet, FileText } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { PlusCircle, Trash2, FileDown, FileBarChart } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -39,12 +40,14 @@ const TransactionsPage = ({ type }: Props) => {
   const fetchData = async () => {
     let q = supabase.from(type).select("*").order(c.dateField, { ascending: false });
     if (filter !== "all") q = q.eq("section", filter as any);
+    if (!isAdmin && allowedSections.length > 0) {
+      q = q.in("section", allowedSections as any);
+    }
     const { data: res } = await q;
     setData(res || []);
   };
 
   const fetchProfiles = async () => {
-    if (!isAdmin) return;
     const { data } = await supabase.from("profiles").select("id, full_name");
     const map: Record<string, string> = {};
     (data || []).forEach((p: any) => { map[p.id] = p.full_name; });
@@ -87,7 +90,6 @@ const TransactionsPage = ({ type }: Props) => {
     { key: "registered_by", label: "Registrado por" },
   ];
   const exportData = data.map(r => ({ ...r, section_label: sectionLabels[r.section] || r.section, amount_fmt: Number(r.amount).toLocaleString(), registered_by: profiles[r.user_id] || "-" }));
-
   const availableSections = isAdmin ? allSectionsList : allSectionsList.filter(s => allowedSections.includes(s.value));
 
   return (
@@ -104,11 +106,11 @@ const TransactionsPage = ({ type }: Props) => {
               <SelectItem value="peluqueria">Peluquería Bitem</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={() => exportToExcel(exportData, exportColumns, c.title.toLowerCase())} title="Excel"><FileSpreadsheet className="h-4 w-4" /></Button>
-          <Button variant="outline" size="icon" onClick={() => exportToPDF(exportData, exportColumns, `${c.title} - Bitem Global`, c.title.toLowerCase())} title="PDF"><FileText className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => exportToExcel(exportData, exportColumns, c.title.toLowerCase())} title="Excel"><FileDown className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => exportToPDF(exportData, exportColumns, `${c.title} - Bitem Global`, c.title.toLowerCase())} title="PDF"><FileBarChart className="h-4 w-4" /></Button>
           {canWrite && (
             <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Nuevo</Button></DialogTrigger>
+              <DialogTrigger asChild><Button className="gap-2"><PlusCircle className="h-4 w-4" /> Nuevo</Button></DialogTrigger>
               <DialogContent>
                 <DialogHeader><DialogTitle>Registrar {c.title}</DialogTitle></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
@@ -117,9 +119,7 @@ const TransactionsPage = ({ type }: Props) => {
                       <Label>Sección</Label>
                       <Select value={form.section} onValueChange={v => setForm({ ...form, section: v })}>
                         <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {availableSections.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}
-                        </SelectContent>
+                        <SelectContent>{availableSections.map(s => <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
                     <div className="space-y-2"><Label>Fecha</Label><Input type="date" value={form.date} onChange={e => setForm({ ...form, date: e.target.value })} required /></div>
@@ -153,7 +153,7 @@ const TransactionsPage = ({ type }: Props) => {
                 ) : data.map(r => (
                   <TableRow key={r.id}>
                     <TableCell>{r[c.dateField]}</TableCell>
-                    <TableCell>{sectionLabels[r.section] || r.section}</TableCell>
+                    <TableCell><Badge variant="outline" className="text-xs">{sectionLabels[r.section] || r.section}</Badge></TableCell>
                     <TableCell>{r.description}</TableCell>
                     <TableCell>{r[c.extraField.key] || "-"}</TableCell>
                     <TableCell className="text-right font-semibold">{Number(r.amount).toLocaleString()} XAF</TableCell>

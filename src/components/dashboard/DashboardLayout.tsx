@@ -3,9 +3,19 @@ import { Outlet } from "react-router-dom";
 import { Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import DashboardSidebar from "./DashboardSidebar";
+import { useAutoLogout } from "@/hooks/useAutoLogout";
+import { useAuth } from "@/hooks/useAuth";
+import WelcomePage from "@/pages/dashboard/WelcomePage";
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { isAdmin, hasRole, profile } = useAuth();
+  useAutoLogout();
+
+  // Check if user has no permissions at all (new user waiting for admin)
+  const hasNoPermissions = !isAdmin && !hasRole("worker") && 
+    (!profile?.allowed_pages || profile.allowed_pages.length === 0) &&
+    (!profile?.allowed_sections || profile.allowed_sections.length === 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -27,7 +37,7 @@ const DashboardLayout = () => {
         </header>
 
         <main className="p-4 md:p-8">
-          <Outlet />
+          {hasNoPermissions ? <WelcomePage /> : <Outlet />}
         </main>
       </div>
     </div>

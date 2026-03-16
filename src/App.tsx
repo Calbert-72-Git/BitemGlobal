@@ -17,6 +17,7 @@ import ChartsPage from "./pages/dashboard/ChartsPage";
 import UsersPage from "./pages/dashboard/UsersPage";
 import PayrollPage from "./pages/dashboard/PayrollPage";
 import AuditPage from "./pages/dashboard/AuditPage";
+import SettingsPage from "./pages/dashboard/SettingsPage";
 import PlaceholderPage from "./pages/dashboard/PlaceholderPage";
 import NotFound from "./pages/NotFound";
 import PageGuard from "./components/PageGuard";
@@ -48,7 +49,7 @@ const App = () => (
               <Route path="clinica" element={<PlaceholderPage />} />
               <Route path="peluqueria" element={<PlaceholderPage />} />
               <Route path="usuarios" element={<PageGuard page="usuarios"><UsersPage /></PageGuard>} />
-              <Route path="configuracion" element={<PlaceholderPage />} />
+              <Route path="configuracion" element={<SettingsPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>

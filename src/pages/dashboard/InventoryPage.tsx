@@ -7,7 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, FileSpreadsheet, FileText } from "lucide-react";
+import { PlusCircle, Trash2, FileDown, FileBarChart, Pencil } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -23,37 +23,71 @@ const columns = [
   { key: "quantity", label: "Cantidad" },
   { key: "unit_price_fmt", label: "Precio Unit. (XAF)" },
   { key: "total_fmt", label: "Valor Total (XAF)" },
+  { key: "managed_by", label: "Gestionado por" },
 ];
 
 const InventoryPage = () => {
-  const { isAdmin, hasRole } = useAuth();
+  const { user, isAdmin, hasRole, profile } = useAuth();
   const [items, setItems] = useState<any[]>([]);
+  const [profiles, setProfiles] = useState<Record<string, string>>({});
   const [open, setOpen] = useState(false);
+  const [editItem, setEditItem] = useState<any>(null);
   const [filter, setFilter] = useState("all");
   const canWrite = isAdmin || hasRole("worker");
+  const allowedSections: string[] = profile?.allowed_sections || [];
   const [form, setForm] = useState({ name: "", description: "", quantity: "0", unit_price: "0", min_stock: "5", section: "clinica" });
 
   const fetchItems = async () => {
     let q = supabase.from("inventory").select("*").order("name");
     if (filter !== "all") q = q.eq("section", filter as any);
+    if (!isAdmin && allowedSections.length > 0) {
+      q = q.in("section", allowedSections as any);
+    }
     const { data } = await q;
     setItems(data || []);
   };
 
-  useEffect(() => { fetchItems(); }, [filter]);
+  const fetchProfiles = async () => {
+    const { data } = await supabase.from("profiles").select("id, full_name");
+    const map: Record<string, string> = {};
+    (data || []).forEach((p: any) => { map[p.id] = p.full_name; });
+    setProfiles(map);
+  };
+
+  useEffect(() => { fetchItems(); fetchProfiles(); }, [filter]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const { data, error } = await supabase.from("inventory").insert({
-      section: form.section as any, name: form.name, description: form.description,
-      quantity: parseInt(form.quantity), unit_price: parseFloat(form.unit_price), min_stock: parseInt(form.min_stock),
-    }).select("id").single();
-    if (error) { toast.error(error.message); return; }
-    await logAction("Agregar inventario", "inventario", data?.id, { name: form.name });
-    toast.success("Artículo agregado");
+    if (editItem) {
+      // Only admins can edit
+      const { error } = await supabase.from("inventory").update({
+        name: form.name, description: form.description,
+        quantity: parseInt(form.quantity), unit_price: parseFloat(form.unit_price), min_stock: parseInt(form.min_stock),
+        section: form.section as any,
+      }).eq("id", editItem.id);
+      if (error) { toast.error(error.message); return; }
+      await logAction("Editar inventario", "inventario", editItem.id, { name: form.name });
+      toast.success("Artículo actualizado");
+      setEditItem(null);
+    } else {
+      const { data, error } = await supabase.from("inventory").insert({
+        section: form.section as any, name: form.name, description: form.description,
+        quantity: parseInt(form.quantity), unit_price: parseFloat(form.unit_price), min_stock: parseInt(form.min_stock),
+        user_id: user?.id,
+      }).select("id").single();
+      if (error) { toast.error(error.message); return; }
+      await logAction("Agregar inventario", "inventario", data?.id, { name: form.name });
+      toast.success("Artículo agregado");
+    }
     setOpen(false);
     setForm({ name: "", description: "", quantity: "0", unit_price: "0", min_stock: "5", section: "clinica" });
     fetchItems();
+  };
+
+  const openEdit = (item: any) => {
+    setEditItem(item);
+    setForm({ name: item.name, description: item.description || "", quantity: String(item.quantity), unit_price: String(item.unit_price), min_stock: String(item.min_stock), section: item.section });
+    setOpen(true);
   };
 
   const handleDelete = async (id: string) => {
@@ -68,6 +102,7 @@ const InventoryPage = () => {
     section_label: sectionLabels[i.section] || i.section,
     unit_price_fmt: Number(i.unit_price).toLocaleString(),
     total_fmt: (i.quantity * Number(i.unit_price)).toLocaleString(),
+    managed_by: profiles[i.user_id] || "-",
   }));
 
   return (
@@ -84,13 +119,13 @@ const InventoryPage = () => {
               <SelectItem value="peluqueria">Peluquería Bitem</SelectItem>
             </SelectContent>
           </Select>
-          <Button variant="outline" size="icon" onClick={() => exportToExcel(exportData, columns, "inventario")} title="Excel"><FileSpreadsheet className="h-4 w-4" /></Button>
-          <Button variant="outline" size="icon" onClick={() => exportToPDF(exportData, columns, "Inventario - Bitem Global", "inventario")} title="PDF"><FileText className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => exportToExcel(exportData, columns, "inventario")} title="Excel"><FileDown className="h-4 w-4" /></Button>
+          <Button variant="outline" size="icon" onClick={() => exportToPDF(exportData, columns, "Inventario - Bitem Global", "inventario")} title="PDF"><FileBarChart className="h-4 w-4" /></Button>
           {canWrite && (
-            <Dialog open={open} onOpenChange={setOpen}>
-              <DialogTrigger asChild><Button className="gap-2"><Plus className="h-4 w-4" /> Nuevo Artículo</Button></DialogTrigger>
+            <Dialog open={open} onOpenChange={v => { if (!v) { setEditItem(null); setForm({ name: "", description: "", quantity: "0", unit_price: "0", min_stock: "5", section: "clinica" }); } setOpen(v); }}>
+              <DialogTrigger asChild><Button className="gap-2"><PlusCircle className="h-4 w-4" /> Nuevo Artículo</Button></DialogTrigger>
               <DialogContent>
-                <DialogHeader><DialogTitle>Agregar Artículo</DialogTitle></DialogHeader>
+                <DialogHeader><DialogTitle>{editItem ? "Editar Artículo" : "Agregar Artículo"}</DialogTitle></DialogHeader>
                 <form onSubmit={handleSubmit} className="space-y-4">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -112,7 +147,7 @@ const InventoryPage = () => {
                     <div className="space-y-2"><Label>Precio Unit. (XAF)</Label><Input type="number" step="0.01" value={form.unit_price} onChange={e => setForm({ ...form, unit_price: e.target.value })} required /></div>
                     <div className="space-y-2"><Label>Stock Mínimo</Label><Input type="number" value={form.min_stock} onChange={e => setForm({ ...form, min_stock: e.target.value })} required /></div>
                   </div>
-                  <Button type="submit" className="w-full">Guardar</Button>
+                  <Button type="submit" className="w-full">{editItem ? "Actualizar" : "Guardar"}</Button>
                 </form>
               </DialogContent>
             </Dialog>
@@ -127,16 +162,17 @@ const InventoryPage = () => {
                 <TableRow>
                   <TableHead>Nombre</TableHead><TableHead>Sección</TableHead><TableHead>Descripción</TableHead>
                   <TableHead className="text-right">Cantidad</TableHead><TableHead className="text-right">Precio Unit.</TableHead>
-                  <TableHead className="text-right">Valor Total</TableHead><TableHead>Estado</TableHead><TableHead></TableHead>
+                  <TableHead className="text-right">Valor Total</TableHead><TableHead>Estado</TableHead>
+                  <TableHead>Gestionado por</TableHead><TableHead></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {items.length === 0 ? (
-                  <TableRow><TableCell colSpan={8} className="text-center py-8 text-muted-foreground">Sin artículos</TableCell></TableRow>
+                  <TableRow><TableCell colSpan={9} className="text-center py-8 text-muted-foreground">Sin artículos</TableCell></TableRow>
                 ) : items.map(item => (
                   <TableRow key={item.id}>
                     <TableCell className="font-medium">{item.name}</TableCell>
-                    <TableCell>{sectionLabels[item.section] || item.section}</TableCell>
+                    <TableCell><Badge variant="outline" className="text-xs">{sectionLabels[item.section] || item.section}</Badge></TableCell>
                     <TableCell>{item.description || "-"}</TableCell>
                     <TableCell className="text-right">{item.quantity}</TableCell>
                     <TableCell className="text-right">{Number(item.unit_price).toLocaleString()} XAF</TableCell>
@@ -144,9 +180,13 @@ const InventoryPage = () => {
                     <TableCell>
                       {item.quantity <= item.min_stock ? <Badge variant="destructive">Bajo</Badge> : <Badge className="bg-accent text-accent-foreground">OK</Badge>}
                     </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">{profiles[item.user_id] || "-"}</TableCell>
                     <TableCell>
                       {isAdmin && (
-                        <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        <div className="flex gap-1">
+                          <Button variant="ghost" size="icon" onClick={() => openEdit(item)}><Pencil className="h-4 w-4" /></Button>
+                          <Button variant="ghost" size="icon" onClick={() => handleDelete(item.id)}><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                        </div>
                       )}
                     </TableCell>
                   </TableRow>
