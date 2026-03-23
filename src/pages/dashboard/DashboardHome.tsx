@@ -70,7 +70,7 @@ const DashboardHome = () => {
     <div className="space-y-8">
       <div>
         <h1 className="font-heading text-3xl font-bold text-foreground">Panel General</h1>
-        <p className="text-muted-foreground mt-1">Resumen de la actividad de Bitem Global</p>
+        <p className="text-muted-foreground mt-1">Resumen de la actividad de Bitem en sus 3 secciones</p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
