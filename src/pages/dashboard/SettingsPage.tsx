@@ -83,15 +83,15 @@ const SettingsPage = () => {
             <div className="grid sm:grid-cols-3 gap-4 text-sm">
               <div>
                 <p className="text-muted-foreground">Versión</p>
-                <p className="font-semibold text-foreground">Bitem Global v2.0</p>
+                <p className="font-semibold text-foreground">Bitem Global v1.5</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Plataforma</p>
-                <p className="font-semibold text-foreground">Lovable Cloud</p>
+                <p className="font-semibold text-foreground">Calbert Osa - 2026</p>
               </div>
               <div>
                 <p className="text-muted-foreground">Soporte</p>
-                <p className="font-semibold text-foreground">©Soportado por Calbert 72</p>
+                <p className="font-semibold text-foreground">©By Calbert 72</p>
               </div>
             </div>
           </CardContent>
